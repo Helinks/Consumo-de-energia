@@ -1,0 +1,283 @@
+/* calcularConsumo.module.css */
+
+.page {
+    min-height: 100vh;
+    background: #171b34;
+    color: white;
+    padding: 80px;
+    position: relative;
+    overflow: hidden;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* HERO */
+
+.hero {
+    margin-bottom: 70px;
+    max-width: 700px;
+}
+
+.subtitle {
+    color: #8b8da7;
+    font-size: 14px;
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+}
+
+.title {
+    font-size: 72px;
+    line-height: 1.1;
+    font-weight: 700;
+    margin-bottom: 25px;
+}
+
+.description {
+    color: #8b8da7;
+    font-size: 18px;
+    line-height: 1.8;
+    max-width: 520px;
+}
+
+/* SECTION */
+
+.section {
+    margin-bottom: 70px;
+}
+
+/* INPUT CARD */
+
+.inputCard {
+    background: #22253f;
+    padding: 30px;
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    transition: all .3s ease;
+}
+
+.inputCard:hover {
+    transform: translateY(-5px);
+    box-shadow:
+        0 0 20px rgba(255,77,103,0.2),
+        0 10px 40px rgba(0,0,0,0.25);
+}
+
+.inputCard label {
+    display: block;
+    margin-bottom: 15px;
+    color: white;
+    font-weight: 600;
+}
+
+/* INPUT */
+
+.input {
+    background: #171b34 !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    color: white !important;
+    height: 58px;
+    border-radius: 12px !important;
+    padding-left: 18px !important;
+    transition: all .3s ease;
+}
+
+.input::placeholder {
+    color: #8b8da7 !important;
+}
+
+.input:focus {
+    background: #171b34 !important;
+    border-color: #ff4d67 !important;
+    box-shadow: 0 0 0 0.2rem rgba(255,77,103,0.2) !important;
+    color: white !important;
+}
+
+/* APARTAMENTOS */
+
+.apartmentSection {
+    margin-top: 50px;
+}
+
+.sectionHeader {
+    margin-bottom: 40px;
+}
+
+.sectionHeader p {
+    color: #8b8da7;
+    margin-bottom: 10px;
+}
+
+.sectionHeader h2 {
+    color: #ff4d67;
+    font-size: 52px;
+    font-weight: 700;
+}
+
+/* CARD */
+
+.apartmentCard {
+    background: #22253f;
+    padding: 35px;
+    border-radius: 20px;
+    transition: all .35s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.apartmentCard::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 4px;
+    height: 100%;
+    background: #ff4d67;
+}
+
+.apartmentCard:hover {
+    transform: translateY(-8px);
+
+    box-shadow:
+        0 0 25px rgba(255,77,103,0.25),
+        0 20px 40px rgba(0,0,0,0.3);
+}
+
+.cardTop {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.icon {
+    width: 65px;
+    height: 65px;
+    border-radius: 16px;
+    background: rgba(255,77,103,0.15);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 28px;
+}
+
+.cardTop h3 {
+    margin: 0;
+    font-size: 24px;
+    color: white;
+}
+
+.cardTop p {
+    margin: 0;
+    margin-top: 5px;
+    color: #8b8da7;
+}
+
+/* BUTTON */
+
+.buttonContainer {
+    margin-top: 70px;
+    display: flex;
+    justify-content: center;
+}
+
+.calculateButton {
+    background: #ff4d67 !important;
+    border: none !important;
+    padding: 16px 45px !important;
+    border-radius: 14px !important;
+    font-weight: 600 !important;
+    font-size: 18px !important;
+    transition: all .3s ease !important;
+}
+
+.calculateButton:hover {
+    transform: translateY(-4px);
+
+    box-shadow:
+        0 0 25px rgba(255,77,103,0.35),
+        0 15px 35px rgba(0,0,0,0.3);
+}
+
+/* DECORACIÓN */
+
+.sideDecoration {
+    position: absolute;
+    right: 70px;
+    top: 180px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.line {
+    width: 1px;
+    height: 60px;
+    background: rgba(255,255,255,0.2);
+}
+
+.circle {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid #ff4d67;
+    background: transparent;
+}
+
+.active {
+    background: #ff4d67;
+    box-shadow: 0 0 15px #ff4d67;
+}
+
+/* LOADER */
+
+.loaderContainer {
+    min-height: 70vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #171b34;
+}
+
+.spinner {
+    color: #ff4d67 !important;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 992px) {
+
+    .page {
+        padding: 40px 20px;
+    }
+
+    .title {
+        font-size: 48px;
+    }
+
+    .sectionHeader h2 {
+        font-size: 38px;
+    }
+
+    .sideDecoration {
+        display: none;
+    }
+}
+
+@media (max-width: 576px) {
+
+    .title {
+        font-size: 38px;
+    }
+
+    .apartmentCard,
+    .inputCard {
+        padding: 25px;
+    }
+
+    .cardTop {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
