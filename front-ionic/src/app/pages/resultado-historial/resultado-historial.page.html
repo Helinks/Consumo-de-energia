@@ -1,0 +1,140 @@
+<app-header [showBack]="true" backRoute="/historial"></app-header>
+
+<div class="loader-container" *ngIf="loading">
+  <div class="spinner"></div>
+</div>
+
+<div class="page" *ngIf="!loading && error">
+  <div class="error-card">
+    <h1>Error</h1>
+    <p>{{ error }}</p>
+    <a routerLink="/historial" class="back-button">Volver atrás</a>
+  </div>
+</div>
+
+<div class="page" *ngIf="!loading && !error">
+  <!-- Decoración lateral -->
+  <div class="timeline">
+    <span></span>
+    <span class="active"></span>
+    <span></span>
+  </div>
+
+  <!-- Hero -->
+  <div class="hero">
+    <p class="section-tag">Recibo energético</p>
+    <h1>
+      Resultados <br />
+      del Consumo
+    </h1>
+    <p class="description">
+      Consulta el detalle energético y financiero correspondiente al recibo seleccionado.
+    </p>
+  </div>
+
+  <!-- DETALLE POR APARTAMENTO -->
+  <div class="section">
+    <h2 class="section-title">Detalle por apartamento</h2>
+
+    <div class="cards-grid">
+      <div class="card" *ngFor="let c of consumos">
+        <div class="card-header">
+          <h3>{{ c.apartamento_descripcion }}</h3>
+          <span class="badge" *ngIf="c.idRol === 1">Dueño</span>
+        </div>
+
+        <p>
+          Responsable:
+          <span>{{ c.responsable_nombre }}</span>
+        </p>
+
+        <p class="highlight" *ngIf="c.idRol === 2">
+          Lectura actual:
+          <span>{{ c.kw | formatNumber }} KW</span>
+        </p>
+
+        <p *ngIf="c.idRol !== 2">
+          KW asignados:
+          <span>{{ c.kw | formatNumber }} KW</span>
+        </p>
+
+        <p>
+          KW consumidos:
+          <span>
+            {{ c.kwConsumidos !== undefined ? (c.kwConsumidos | formatNumber) : (precioKW > 0 ? (c.precioConsumo / precioKW | formatNumber) : '0.00') }}
+          </span>
+        </p>
+
+        <p>
+          Precio consumo:
+          <span>${{ c.precioConsumo | formatNumber }}</span>
+        </p>
+
+        <p>
+          Precio aseo:
+          <span>${{ c.precioAseo | formatNumber }}</span>
+        </p>
+
+        <div class="total">
+          ${{ c.precioConsumoFinal | formatNumber }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESUMEN FINANCIERO -->
+  <div class="section">
+    <h2 class="section-title">Resumen financiero</h2>
+
+    <div class="summary-grid">
+      <div class="summary-card">
+        <h3>Total consumo</h3>
+        <p>${{ totalConsumo | formatNumber }}</p>
+      </div>
+
+      <div class="summary-card">
+        <h3>Total aseo</h3>
+        <p>${{ totalAseo | formatNumber }}</p>
+      </div>
+
+      <div class="summary-card highlight-card">
+        <h3>Total a pagar</h3>
+        <p>${{ totalFinal | formatNumber }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- INFORMACIÓN ADICIONAL -->
+  <div class="section">
+    <h2 class="section-title">Información adicional</h2>
+
+    <div class="info-card">
+      <div>
+        <span>Precio KW</span>
+        <p>${{ recibo?.precioKw | formatNumber }}</p>
+      </div>
+
+      <div>
+        <span>Precio aseo</span>
+        <p>${{ recibo?.precioAseo | formatNumber }}</p>
+      </div>
+
+      <div>
+        <span>Precio consumo</span>
+        <p>${{ recibo?.precioEnergiaConsumida | formatNumber }}</p>
+      </div>
+
+      <div>
+        <span>KW consumidos</span>
+        <p>{{ recibo?.kwConsumidos | formatNumber }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACCIONES -->
+  <div class="actions">
+    <a routerLink="/historial" class="back-button">
+      Volver atrás
+    </a>
+  </div>
+</div>

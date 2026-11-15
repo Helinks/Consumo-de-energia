@@ -173,6 +173,17 @@
     color: #8b8da7;
 }
 
+.tenantName {
+    margin: 4px 0 !important;
+    color: #ff4d67 !important;
+    font-size: 15px;
+}
+
+.tenantName strong {
+    color: #ffffff;
+    font-weight: 600;
+}
+
 /* BUTTON */
 
 .buttonContainer {

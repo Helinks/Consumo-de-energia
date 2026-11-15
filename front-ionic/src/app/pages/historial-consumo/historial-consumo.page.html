@@ -1,0 +1,55 @@
+<app-header [showBack]="true" backRoute="/dashboard"></app-header>
+
+<div class="loader-container" *ngIf="loading">
+  <div class="spinner"></div>
+</div>
+
+<div class="page" *ngIf="!loading">
+  <!-- Decoración lateral -->
+  <div class="timeline">
+    <span></span>
+    <span></span>
+    <span class="active"></span>
+  </div>
+
+  <!-- Hero -->
+  <div class="hero">
+    <p class="section-tag">Consumo</p>
+    <h1>
+      Historial de <br />
+      Consumo
+    </h1>
+    <p class="description">
+      Consulta el registro completo de tus recibos, consumo energético y valores facturados.
+    </p>
+  </div>
+
+  <!-- TABLA -->
+  <div class="table-container">
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Precio consumo</th>
+          <th>Total</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of recibos">
+          <td>{{ formatDate(r.fechaCreacion) }}</td>
+          <td>${{ r.precioEnergiaConsumida | formatNumber }}</td>
+          <td>${{ r.precioTotal | formatNumber }}</td>
+          <td>
+            <a [routerLink]="['/resultado-historial']" [queryParams]="{ reciboId: r.idRecibo }" class="view-btn">
+              Ver más
+            </a>
+          </td>
+        </tr>
+        <tr *ngIf="recibos.length === 0">
+          <td colspan="4" class="empty">No hay recibos registrados.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

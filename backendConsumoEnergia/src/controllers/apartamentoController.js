@@ -1,4 +1,5 @@
 const pool = require("../config/database")
+const { responderError } = require("../utils/dbError")
 
 const consultarApartamentos = async (req,res) =>{
     const consultarQuery = "SELECT * FROM apartamento a INNER JOIN responsable r ON a.Responsable_idResponsable = r.idResponsable ORDER BY a.idApartamento ASC";
@@ -9,13 +10,14 @@ const consultarApartamentos = async (req,res) =>{
             message: result
         })
     }catch(error){
-        console.error('Error al consultar los apartamentos en MySQL: ', error);
-        res.status(500).json({ error: 'Error interno del servidor.' })
+        return responderError(res, error, 'Error al consultar los apartamentos.');
     }
 };
 const consultarApartamentosSinResponsable = async (req,res) =>{
     const consultarQuery = `
-        SELECT a.*, r.*,
+        SELECT a.idApartamento, a.descripcion, a.Responsable_idResponsable,
+               r.idResponsable, r.nombres, r.idRol, r.Estado_idEstado,
+               r.nombres AS responsable_nombre,
             (SELECT c.kw FROM consumo c
              WHERE c.Apartamento_idApartamento = a.idApartamento
              ORDER BY c.Recibo_idRecibo DESC
@@ -23,6 +25,7 @@ const consultarApartamentosSinResponsable = async (req,res) =>{
         FROM apartamento a
         INNER JOIN responsable r ON a.Responsable_idResponsable = r.idResponsable
         WHERE a.Responsable_idResponsable > 0
+        ORDER BY a.idApartamento ASC
     `;
 
     try{
@@ -31,8 +34,7 @@ const consultarApartamentosSinResponsable = async (req,res) =>{
             message: result
         })
     }catch(error){
-        console.error('Error al consultar los apartamentos en MySQL: ', error);
-        res.status(500).json({ error: 'Error interno del servidor.' })
+        return responderError(res, error, 'Error al consultar los apartamentos para el cálculo.');
     }
 };
 
@@ -63,8 +65,7 @@ const crearApartamento = async (req, res) => {
             reciboId: result.insertId
         })
     } catch (error) {
-        console.error('Error al registrar el apartamento en MySQL: ', error);
-        res.status(500).json({ error: 'Error interno del servidor.' })
+        return responderError(res, error, 'Error al registrar el apartamento.');
     }
 };
 
@@ -94,8 +95,7 @@ const editarApartamento = async (req, res) => {
             reciboId: id
         })
     } catch (error) {
-        console.error('Error al registrar el apartamento en MySQL: ', error);
-        res.status(500).json({ error: 'Error interno del servidor.' })
+        return responderError(res, error, 'Error al actualizar el apartamento.');
     }
 };
 
@@ -116,8 +116,7 @@ const borrarApartamento = async (req, res) => {
             reciboId: id
         })
     } catch (error) {
-        console.error('Error al borrar al apartamento en MySQL: ', error);
-        res.status(500).json({ error: 'Error interno del servidor.' })
+        return responderError(res, error, 'Error al borrar el apartamento.');
     }
 
 };

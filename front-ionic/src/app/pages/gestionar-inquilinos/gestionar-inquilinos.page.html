@@ -1,0 +1,190 @@
+<app-header [showBack]="true" backRoute="/dashboard"></app-header>
+
+<div class="page">
+  <!-- Decoración lateral -->
+  <div class="side-decoration">
+    <span class="circle active"></span>
+    <span class="line"></span>
+    <span class="circle"></span>
+    <span class="line"></span>
+    <span class="circle"></span>
+  </div>
+
+  <!-- Hero -->
+  <section class="hero">
+    <p class="subtitle">Administración</p>
+    <h1 class="title">
+      Gestionar <br />
+      inquilinos
+    </h1>
+    <p class="description">
+      Administra información, estados y registros de inquilinos desde un panel elegante y moderno.
+    </p>
+  </section>
+
+  <!-- ACTION BAR -->
+  <div class="top-bar">
+    <h2>Lista de inquilinos</h2>
+    <button class="primary-button" (click)="openAddModal()">
+      Agregar +
+    </button>
+  </div>
+
+  <!-- ACTIVOS -->
+  <section class="section">
+    <div class="section-header">
+      <p>Disponibles</p>
+      <h3>Inquilinos activos</h3>
+    </div>
+
+    <div class="table-container">
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let i of activos">
+            <td>{{ i.nombres }}</td>
+            <td>
+              <span class="active-badge">Activo</span>
+            </td>
+            <td>
+              <div class="actions">
+                <button class="info-btn" (click)="openDetailsModal(i)">Ver</button>
+                <button class="edit-btn" (click)="openEditModal(i)">Editar</button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="activos.length === 0">
+            <td colspan="3" class="text-center">No hay inquilinos activos</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- INACTIVOS -->
+  <section class="section">
+    <div class="section-header">
+      <p>Archivados</p>
+      <h3>Inquilinos inactivos</h3>
+    </div>
+
+    <div class="table-container">
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let i of inactivos">
+            <td>{{ i.nombres }}</td>
+            <td>
+              <span class="inactive-badge">Inactivo</span>
+            </td>
+            <td>
+              <div class="actions">
+                <button class="info-btn" (click)="openDetailsModal(i)">Ver</button>
+                <button class="edit-btn" (click)="openEditModal(i)">Editar</button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="inactivos.length === 0">
+            <td colspan="3" class="text-center">No hay inquilinos inactivos</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<!-- MODAL AGREGAR -->
+<div class="modal-backdrop" *ngIf="showAdd">
+  <div class="custom-modal">
+    <div class="modal-header">
+      <h2>Agregar inquilino</h2>
+      <button class="close-btn" (click)="showAdd = false">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="input-card">
+        <label>Nombre del inquilino</label>
+        <input type="text" class="custom-input" placeholder="Ingresa el nombre" [(ngModel)]="addNombres" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="secondary-button" (click)="showAdd = false">Cancelar</button>
+      <button class="primary-button" (click)="handleAddSave()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR -->
+<div class="modal-backdrop" *ngIf="showEdit">
+  <div class="custom-modal">
+    <div class="modal-header">
+      <h2>Editar inquilino</h2>
+      <button class="close-btn" (click)="showEdit = false">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="input-card">
+        <label>Nombre del inquilino</label>
+        <input type="text" class="custom-input" [(ngModel)]="editNombres" />
+      </div>
+
+      <div class="input-card" style="margin-top: 20px;">
+        <label>Estado</label>
+        <select class="custom-select" [(ngModel)]="editIdEstado">
+          <option value="1">Activo</option>
+          <option value="2">Inactivo</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="secondary-button" (click)="showEdit = false">Cancelar</button>
+      <button class="primary-button" (click)="handleEditSave()">Actualizar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DETALLES -->
+<div class="modal-backdrop" *ngIf="showDetails && selectedInquilino">
+  <div class="custom-modal">
+    <div class="modal-header">
+      <h2>Detalles del inquilino</h2>
+      <button class="close-btn" (click)="showDetails = false">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="details-card">
+        <div class="detail-row">
+          <span>Nombre</span>
+          <strong>{{ selectedInquilino.nombres }}</strong>
+        </div>
+        <div class="detail-row">
+          <span>Estado</span>
+          <span [class]="selectedInquilino.Estado_idEstado === 1 ? 'active-badge' : 'inactive-badge'">
+            {{ selectedInquilino.Estado_idEstado === 1 ? 'Activo' : 'Inactivo' }}
+          </span>
+        </div>
+        <div class="detail-row">
+          <span>Fecha creación</span>
+          <strong>{{ selectedInquilino.fechaCreacion || 'N/A' }}</strong>
+        </div>
+        <div class="detail-row">
+          <span>Última actualización</span>
+          <strong>{{ selectedInquilino.fechaActualizacion || 'N/A' }}</strong>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="delete-button" (click)="handleDelete(selectedInquilino.idResponsable!)">Eliminar</button>
+      <button class="secondary-button" (click)="showDetails = false">Cerrar</button>
+    </div>
+  </div>
+</div>

@@ -15,6 +15,7 @@ function ResultadoHistorial() {
     const [consumos, setConsumos] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
+    const [totales, setTotales] = useState(null)
 
     useEffect(() => {
         if (!reciboId) {
@@ -44,6 +45,9 @@ function ResultadoHistorial() {
                     Array.isArray(dataConsumos.message)
                 ) {
                     setConsumos(dataConsumos.message)
+                    if (dataConsumos.totales) {
+                        setTotales(dataConsumos.totales)
+                    }
                 }
             } catch (err) {
                 console.error('Error al cargar historial:', err)
@@ -95,17 +99,17 @@ function ResultadoHistorial() {
 
     const precioKW = Number(recibo?.precioKw || 0)
 
-    const totalConsumo = consumos.reduce(
+    const totalConsumo = totales?.totalConsumo ?? consumos.reduce(
         (sum, c) => sum + Number(c.precioConsumo),
         0
     )
 
-    const totalAseo = consumos.reduce(
+    const totalAseo = totales?.totalAseo ?? consumos.reduce(
         (sum, c) => sum + Number(c.precioAseo),
         0
     )
 
-    const totalFinal = consumos.reduce(
+    const totalFinal = totales?.totalFinal ?? consumos.reduce(
         (sum, c) => sum + Number(c.precioConsumoFinal),
         0
     )
@@ -156,7 +160,7 @@ function ResultadoHistorial() {
                                         {c.apartamento_descripcion}
                                     </h3>
 
-                                    {c.idRol == 1 && (
+                                    {c.idRol === 1 && (
                                         <span className={Styles.badge}>
                                             Dueño
                                         </span>
@@ -170,7 +174,7 @@ function ResultadoHistorial() {
                                     </span>
                                 </p>
 
-                                {c.idRol == 2 ? (
+                                {c.idRol === 2 ? (
                                     <p className={Styles.highlight}>
                                         Lectura actual:
                                         <span>
@@ -189,13 +193,15 @@ function ResultadoHistorial() {
                                 <p>
                                     KW consumidos:
                                     <span>
-                                        {precioKW > 0
-                                            ? formatNumber(
-                                                  Number(
-                                                      c.precioConsumo
-                                                  ) / precioKW
-                                              )
-                                            : '0.00'}
+                                        {c.kwConsumidos !== undefined
+                                            ? formatNumber(c.kwConsumidos)
+                                            : (precioKW > 0
+                                                  ? formatNumber(
+                                                        Number(
+                                                            c.precioConsumo
+                                                        ) / precioKW
+                                                    )
+                                                  : '0.00')}
                                     </span>
                                 </p>
 

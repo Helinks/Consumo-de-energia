@@ -1,0 +1,173 @@
+<app-header [showBack]="false"></app-header>
+
+<div class="loader-container" *ngIf="loading">
+  <div class="spinner"></div>
+</div>
+
+<div class="page" *ngIf="!loading && error">
+  <div class="error-card">
+    <h1>Error</h1>
+    <p>{{ error }}</p>
+    <button class="primary-button" (click)="handleLeaveClick()">
+      Volver
+    </button>
+  </div>
+</div>
+
+<div class="page" *ngIf="!loading && !error">
+  <!-- Decoración lateral -->
+  <div class="side-decoration">
+    <span class="circle active"></span>
+    <span class="line"></span>
+    <span class="circle"></span>
+    <span class="line"></span>
+    <span class="circle"></span>
+  </div>
+
+  <!-- Hero -->
+  <section class="hero">
+    <p class="subtitle">Resultado del cálculo</p>
+    <h1 class="title">
+      Consumos <br />
+      calculados
+    </h1>
+    <p class="description">
+      Consulta el detalle energético de cada apartamento y administra consumos fácilmente.
+    </p>
+  </section>
+
+  <!-- GRID DE CONSUMOS -->
+  <div class="consumos-grid">
+    <div class="result-card" *ngFor="let c of consumos">
+      <div class="card-top">
+        <div class="icon">⚡</div>
+        <div>
+          <h2>{{ c.apartamento_descripcion }}</h2>
+          <p>Responsable: {{ c.responsable_nombre }}</p>
+        </div>
+      </div>
+
+      <div class="owner-badge" *ngIf="c.idRol === 1">
+        Dueño
+      </div>
+
+      <div class="highlight" *ngIf="c.idRol === 2">
+        Lectura actual: {{ c.kw | formatNumber }} KW
+      </div>
+
+      <div class="normal-text" *ngIf="c.idRol !== 2">
+        KW asignados: {{ c.kw | formatNumber }}
+      </div>
+
+      <div class="info-row">
+        <span>KW consumidos</span>
+        <strong>
+          {{ c.kwConsumidos !== undefined ? (c.kwConsumidos | formatNumber) : (precioKW > 0 ? (c.precioConsumo / precioKW | formatNumber) : '0.00') }}
+        </strong>
+      </div>
+
+      <div class="info-row">
+        <span>Precio consumo</span>
+        <strong>${{ c.precioConsumo | formatNumber }}</strong>
+      </div>
+
+      <div class="info-row">
+        <span>Precio aseo</span>
+        <strong>${{ c.precioAseo | formatNumber }}</strong>
+      </div>
+
+      <div class="total-row">
+        <span>Total</span>
+        <h3>${{ c.precioConsumoFinal | formatNumber }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESUMEN GENERAL -->
+  <section class="summary-section">
+    <h2>Resumen general</h2>
+    <div class="summary-grid">
+      <div class="summary-card">
+        <p>Precio KW</p>
+        <h3>${{ recibo?.precioKw | formatNumber }}</h3>
+      </div>
+
+      <div class="summary-card">
+        <p>Precio aseo</p>
+        <h3>${{ recibo?.precioAseo | formatNumber }}</h3>
+      </div>
+
+      <div class="summary-card">
+        <p>Precio consumo</p>
+        <h3>${{ recibo?.precioEnergiaConsumida | formatNumber }}</h3>
+      </div>
+
+      <div class="summary-card highlight-card">
+        <p>Total general</p>
+        <h3>${{ recibo?.precioTotal | formatNumber }}</h3>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOTONES ACCIÓN -->
+  <div class="button-container">
+    <button class="secondary-button" (click)="openEditModal()">
+      Editar valores
+    </button>
+    <button class="primary-button" (click)="handleLeaveClick()">
+      Aceptar y salir
+    </button>
+  </div>
+</div>
+
+<!-- MODAL EDITAR CONSUMO -->
+<div class="modal-backdrop" *ngIf="showEditModal">
+  <div class="custom-modal">
+    <div class="modal-header">
+      <h2>Editar Consumo</h2>
+      <button class="close-btn" (click)="closeEditModal()">&times;</button>
+    </div>
+
+    <div class="modal-body">
+      <p class="modal-subtitle">Valores generales</p>
+      <div class="inputs-grid-modal">
+        <div class="input-card">
+          <label>KW consumidos</label>
+          <input type="number" class="custom-input" [(ngModel)]="editKwConsumidos" />
+        </div>
+        <div class="input-card">
+          <label>Precio consumo</label>
+          <input type="number" class="custom-input" [(ngModel)]="editPrecioEnergiaConsumida" />
+        </div>
+        <div class="input-card">
+          <label>Precio aseo</label>
+          <input type="number" class="custom-input" [(ngModel)]="editPrecioAseo" />
+        </div>
+      </div>
+
+      <p class="modal-subtitle" style="margin-top: 30px;">Lecturas actuales</p>
+      <div class="apartments-modal-grid">
+        <ng-container *ngFor="let c of consumos">
+          <div class="apartment-card-modal" *ngIf="c.idRol === 2">
+            <h3>{{ c.apartamento_descripcion }}</h3>
+            <p *ngIf="c.responsable_nombre" class="tenant-modal-name">
+              Inquilino: <strong>{{ c.responsable_nombre }}</strong>
+            </p>
+            <p class="reading-hint">Lectura actual del medidor</p>
+            <input
+              type="number"
+              class="custom-input"
+              placeholder="Lectura actual"
+              [(ngModel)]="editLecturas[c.Apartamento_idApartamento]"
+            />
+          </div>
+        </ng-container>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="secondary-button" (click)="closeEditModal()">Cancelar</button>
+      <button class="primary-button" (click)="saveEditConsumo()">Guardar cambios</button>
+    </div>
+  </div>
+</div>

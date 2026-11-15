@@ -1,0 +1,59 @@
+<app-header [showBack]="false"></app-header>
+
+<div class="dashboard-page">
+  <!-- Decoración lateral -->
+  <div class="side-decoration">
+    <span class="circle active"></span>
+    <span class="line"></span>
+    <span class="circle"></span>
+    <span class="line"></span>
+    <span class="circle"></span>
+  </div>
+
+  <!-- Hero -->
+  <section class="hero">
+    <p class="subtitle">Panel principal</p>
+    <h1 class="title">
+      Gestiona tus <br />
+      apartamentos
+    </h1>
+    <p class="description">
+      Administra consumos, inquilinos y apartamentos desde un dashboard moderno, limpio y minimalista.
+    </p>
+  </section>
+
+  <!-- Opciones Grid -->
+  <section class="grid">
+    <a routerLink="/calcular-consumo" class="card-link">
+      <div class="card">
+        <div class="icon">⚡</div>
+        <h2>Calcular consumo</h2>
+        <p>Registra y calcula nuevos consumos de energía.</p>
+      </div>
+    </a>
+
+    <a routerLink="/inquilinos" class="card-link">
+      <div class="card">
+        <div class="icon">👤</div>
+        <h2>Gestionar inquilinos</h2>
+        <p>Administra información y registros de inquilinos.</p>
+      </div>
+    </a>
+
+    <a routerLink="/apartamentos" class="card-link">
+      <div class="card">
+        <div class="icon">🏢</div>
+        <h2>Gestionar apartamentos</h2>
+        <p>Organiza apartamentos y sus configuraciones.</p>
+      </div>
+    </a>
+
+    <a routerLink="/historial" class="card-link">
+      <div class="card">
+        <div class="icon">📊</div>
+        <h2>Historial de consumos</h2>
+        <p>Consulta reportes y consumos anteriores.</p>
+      </div>
+    </a>
+  </section>
+</div>

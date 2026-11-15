@@ -125,6 +125,8 @@ function CalcularConsumo() {
 
                     precioAseo: Number(precioAseo),
 
+                    lecturas: contadores,
+
                     numeroContador
 
                 })
@@ -288,7 +290,7 @@ function CalcularConsumo() {
 
                             {apartments.map((apt) => (
 
-                                apt.idRol == 2 && (
+                                apt.idRol === 2 && (
 
                                     <Col xl={6} key={apt.idApartamento}>
 
@@ -301,6 +303,11 @@ function CalcularConsumo() {
 
                                                 <div>
                                                     <h3>{apt.descripcion}</h3>
+                                                    {(apt.nombres || apt.responsable_nombre) && (
+                                                        <p className={Styles.tenantName}>
+                                                            Inquilino: <strong>{apt.nombres || apt.responsable_nombre}</strong>
+                                                        </p>
+                                                    )}
                                                     <p>
                                                         Lectura actual del medidor
                                                     </p>

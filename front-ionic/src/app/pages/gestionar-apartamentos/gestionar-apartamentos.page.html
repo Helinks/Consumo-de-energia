@@ -1,0 +1,127 @@
+<app-header [showBack]="true" backRoute="/dashboard"></app-header>
+
+<div class="page">
+  <!-- Decoración lateral -->
+  <div class="side-decoration">
+    <span class="circle active"></span>
+    <span class="line"></span>
+    <span class="circle"></span>
+    <span class="line"></span>
+    <span class="circle"></span>
+  </div>
+
+  <!-- Hero -->
+  <section class="hero">
+    <p class="subtitle">Administración</p>
+    <h1 class="title">
+      Gestionar <br />
+      apartamentos
+    </h1>
+    <p class="description">
+      Organiza y administra apartamentos, responsables y ocupación desde un panel moderno y elegante.
+    </p>
+  </section>
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <h2>Lista de apartamentos</h2>
+    <button class="primary-button" (click)="openAddModal()">
+      Agregar +
+    </button>
+  </div>
+
+  <!-- LISTADO DE APARTAMENTOS -->
+  <section class="section">
+    <div class="section-header">
+      <p>Disponibles</p>
+      <h3>Apartamentos registrados</h3>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card" *ngFor="let apt of apartamentos">
+        <div class="card-top">
+          <div>
+            <p class="card-label">Apartamento</p>
+            <h4>{{ apt.descripcion }}</h4>
+          </div>
+          <span [class]="getResponsableName(apt.Responsable_idResponsable) === 'Libre' ? 'free-badge' : 'active-badge'">
+            {{ getResponsableName(apt.Responsable_idResponsable) === 'Libre' ? 'Libre' : 'Ocupado' }}
+          </span>
+        </div>
+
+        <div class="card-info">
+          <span>Responsable</span>
+          <strong>{{ getResponsableName(apt.Responsable_idResponsable) }}</strong>
+        </div>
+
+        <button class="info-button" (click)="openDetallesModal(apt)">
+          Ver detalles
+        </button>
+      </div>
+
+      <div class="empty-card" *ngIf="apartamentos.length === 0">
+        No hay apartamentos registrados.
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- MODAL AGREGAR APARTAMENTO -->
+<div class="modal-backdrop" *ngIf="showAdd">
+  <div class="custom-modal">
+    <div class="modal-header">
+      <h2>Agregar apartamento</h2>
+      <button class="close-btn" (click)="showAdd = false">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="input-card">
+        <label>Nombre / descripción</label>
+        <input type="text" class="custom-input" placeholder="Ej: Apartamento 301" [(ngModel)]="addDescripcion" />
+      </div>
+
+      <div class="input-card" style="margin-top: 20px;">
+        <label>Responsable</label>
+        <select class="custom-select" [(ngModel)]="addIdResponsable">
+          <option value="">Seleccionar responsable</option>
+          <option *ngFor="let i of inquilinos" [value]="i.idResponsable">
+            {{ i.nombres }}
+          </option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="secondary-button" (click)="showAdd = false">Cancelar</button>
+      <button class="primary-button" (click)="handleAddSave()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DETALLES / EDITAR APARTAMENTO -->
+<div class="modal-backdrop" *ngIf="showDetalles && selectedApartamento">
+  <div class="custom-modal">
+    <div class="modal-header">
+      <h2>Detalles del apartamento</h2>
+      <button class="close-btn" (click)="showDetalles = false">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="input-card">
+        <label>Descripción / Nombre</label>
+        <input type="text" class="custom-input" [(ngModel)]="editDescripcion" />
+      </div>
+
+      <div class="input-card" style="margin-top: 20px;">
+        <label>Asignar responsable</label>
+        <select class="custom-select" [(ngModel)]="editIdResponsable">
+          <option value="">Ninguno</option>
+          <option *ngFor="let i of inquilinos" [value]="i.idResponsable">
+            {{ i.nombres }}
+          </option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="secondary-button" (click)="showDetalles = false">Cancelar</button>
+      <button class="primary-button" (click)="handleUpdateSave()">Guardar cambios</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,110 @@
+<app-header [showBack]="true" backRoute="/dashboard"></app-header>
+
+<div class="loader-container" *ngIf="loading">
+  <div class="spinner"></div>
+</div>
+
+<div class="page" *ngIf="!loading">
+  <!-- Decoración lateral -->
+  <div class="side-decoration">
+    <span class="circle active"></span>
+    <span class="line"></span>
+    <span class="circle"></span>
+    <span class="line"></span>
+    <span class="circle"></span>
+  </div>
+
+  <!-- Hero -->
+  <section class="hero">
+    <p class="subtitle">Gestión energética</p>
+    <h1 class="title">
+      Calcular <br />
+      consumo
+    </h1>
+    <p class="description">
+      Registra lecturas eléctricas y calcula automáticamente los consumos de cada apartamento.
+    </p>
+  </section>
+
+  <!-- FORM PRINCIPAL -->
+  <section class="section">
+    <div class="inputs-grid">
+      <div class="input-card">
+        <label>KW consumidos</label>
+        <div class="input-wrapper">
+          <input
+            type="number"
+            class="custom-input"
+            placeholder="0"
+            [(ngModel)]="kwConsumidos"
+          />
+        </div>
+      </div>
+
+      <div class="input-card">
+        <label>Precio consumo</label>
+        <div class="input-wrapper">
+          <input
+            type="number"
+            class="custom-input"
+            placeholder="0"
+            [(ngModel)]="precioEnergiaConsumida"
+          />
+        </div>
+      </div>
+
+      <div class="input-card">
+        <label>Precio aseo</label>
+        <div class="input-wrapper">
+          <input
+            type="number"
+            class="custom-input"
+            placeholder="0"
+            [(ngModel)]="precioAseo"
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- APARTAMENTOS -->
+  <section class="apartment-section">
+    <div class="section-header">
+      <p>Lecturas actuales</p>
+      <h2>Apartamentos</h2>
+    </div>
+
+    <div class="apartments-grid">
+      <ng-container *ngFor="let apt of apartments">
+        <div class="apartment-card" *ngIf="apt.idRol === 2">
+          <div class="card-top">
+            <div class="icon">⚡</div>
+            <div>
+              <h3>{{ apt.descripcion }}</h3>
+              <p class="tenant-name" *ngIf="apt.nombres || apt.responsable_nombre">
+                Inquilino: <strong>{{ apt.nombres || apt.responsable_nombre }}</strong>
+              </p>
+              <p class="reading-hint">Lectura actual del medidor</p>
+            </div>
+          </div>
+
+          <div class="input-wrapper">
+            <input
+              type="number"
+              class="custom-input"
+              placeholder="Lectura en KW"
+              [(ngModel)]="contadores[apt.idApartamento]"
+            />
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </section>
+
+  <!-- BOTÓN CALCULAR -->
+  <div class="button-container">
+    <button class="calculate-btn" (click)="handleCalculate()" [disabled]="submitting">
+      {{ submitting ? 'Calculando...' : 'Calcular consumo →' }}
+    </button>
+  </div>
+</div>

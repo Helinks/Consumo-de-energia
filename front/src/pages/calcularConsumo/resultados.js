@@ -119,6 +119,8 @@ function EditarConsumoModal({
 
             precioAseo: Number(precioAseo),
 
+            lecturas,
+
             numeroContador
 
           })
@@ -256,6 +258,11 @@ function EditarConsumoModal({
                   <div className={Styles.apartmentCard}>
 
                     <h3>{c.apartamento_descripcion}</h3>
+                    {c.responsable_nombre && (
+                      <p style={{ margin: '4px 0 8px 0', color: '#ff4d67', fontSize: '15px' }}>
+                        Inquilino: <strong style={{ color: '#fff' }}>{c.responsable_nombre}</strong>
+                      </p>
+                    )}
 
                     <p>
                       Lectura actual del medidor
@@ -631,12 +638,14 @@ function Resultados() {
                     <span>KW consumidos</span>
 
                     <strong>
-                      {precioKW > 0
-                        ? formatNumber(
-                            Number(c.precioConsumo) /
-                            precioKW
-                          )
-                        : '0.00'}
+                      {c.kwConsumidos !== undefined
+                        ? formatNumber(c.kwConsumidos)
+                        : (precioKW > 0
+                            ? formatNumber(
+                                Number(c.precioConsumo) /
+                                precioKW
+                              )
+                            : '0.00')}
                     </strong>
                   </div>
 

@@ -1,4 +1,5 @@
-const pool = require("../config/database")
+const pool = require("../config/database");
+const { responderError } = require("../utils/dbError");
 
 const consultarResponsables = async (req, res) => {
     const consultarQuery = "SELECT * FROM responsable WHERE idResponsable > 0";
@@ -9,14 +10,15 @@ const consultarResponsables = async (req, res) => {
             message: result
         })
     } catch (error) {
-        console.error('Error al consultar los responsables: ', error);
-        res.status(500).json({ error: 'Error interno del servidor' });
+        return responderError(res, error, 'Error al consultar los responsables.');
     }
 };
 
 const crearResponsable = async (req, res) => {
     const { nombres } = req.body;
-    
+    // En esta pantalla se registran inquilinos (rol 2). Si se envía
+    // idRol explícitamente se respeta (1 = Dueño, 2 = Inquilino).
+    const idRol = Number(req.body.idRol) || 2;
 
     if (!nombres) {
         return res.status(400).json({ error: "Faltan datos" })
@@ -25,14 +27,14 @@ const crearResponsable = async (req, res) => {
     const fechaCreacion = new Date();
     const fechaActualizacion = new Date();
     const idEstado = 1;
-    const createQuery = 'INSERT INTO responsable(Estado_idEstado,nombres,fechaCreacion,fechaActualizacion) VALUES (?,?,?,?)';
+    const createQuery = 'INSERT INTO responsable(Estado_idEstado,nombres,fechaCreacion,fechaActualizacion,idRol) VALUES (?,?,?,?,?)';
     const values = [
         idEstado,
         nombres,
         fechaCreacion,
-        fechaActualizacion
+        fechaActualizacion,
+        idRol
     ];
-
 
     try {
         const [result] = await pool.query(createQuery, values);
@@ -41,8 +43,7 @@ const crearResponsable = async (req, res) => {
             reciboId: result.insertId,
         })
     } catch (error) {
-        console.error('Error al resgistrar al responsable: ', error);
-        res.status(500).json({ error: 'Error interno del servidor' });
+        return responderError(res, error, 'Error al registrar el responsable.');
     }
 };
 
@@ -52,8 +53,6 @@ const editarResponsable = async (req, res) => {
     if (!id || !nombres || !idEstado) {
         return res.status(400).json({ error: "Faltan datos" })
     }
-    console.log('Body recibido:', req.body);
-    console.log('Headers:', req.headers['content-type']);
 
     const fechaActualizacion = new Date();
     const updateQuery = 'UPDATE responsable SET Estado_idEstado = ?, nombres = ?, fechaActualizacion = ? WHERE idResponsable = ?';
@@ -64,7 +63,6 @@ const editarResponsable = async (req, res) => {
         id
     ];
 
-
     try {
         const [result] = await pool.query(updateQuery, values);
         res.status(201).json({
@@ -72,8 +70,7 @@ const editarResponsable = async (req, res) => {
             reciboId: id,
         })
     } catch (error) {
-        console.error('Error al actualizar al responsable: ', error);
-        res.status(500).json({ error: 'Error interno del servidor' });
+        return responderError(res, error, 'Error al actualizar el responsable.');
     }
 };
 
@@ -94,8 +91,7 @@ const borrarResponsable = async (req, res) => {
             reciboId: id
         })
     } catch (error) {
-        console.error('Error al borrar al responsable en MySQL: ', error);
-        res.status(500).json({ error: 'Error interno del servidor.' })
+        return responderError(res, error, 'Error al borrar el responsable.');
     }
 
 };

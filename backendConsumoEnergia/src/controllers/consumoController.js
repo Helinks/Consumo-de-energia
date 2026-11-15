@@ -1,7 +1,13 @@
-const pool = require('../config/database');
+const { responderError } = require('../utils/dbError');
 
 const crearConsumo = async (req, res) => {
-    const { reciboId, numeroContador, totalFilas, apartments, beforeNumber, precioKw, precioAseo, kwConsumidos} = req.reciboData;
+    const connection = req.dbConnection;
+
+    if (!connection || !req.reciboData) {
+        return res.status(500).json({ error: 'No se pudo iniciar la transacción del recibo.' });
+    }
+
+    const { reciboId, numeroContador, totalFilas, apartments, beforeNumber, precioKw, precioAseo, kwConsumidos } = req.reciboData;
 
     const insertQuery = "INSERT INTO consumo(Recibo_idRecibo, Apartamento_idApartamento, kw, precioConsumo, precioAseo, precioConsumoFinal, fechaCreacion, fechaActualizacion,idResponsable) VALUES (?,?,?,?,?,?,?,?,?)";
 
@@ -60,18 +66,28 @@ const crearConsumo = async (req, res) => {
                 fechaActualizacion,
                 apt.idResponsable
             ];
-            insertPromises.push(pool.query(insertQuery, values));
+            insertPromises.push(connection.query(insertQuery, values));
         }
 
         await Promise.all(insertPromises);
+
+        // Solo se confirma cuando el recibo y todos los consumos se
+        // insertaron correctamente.
+        await connection.commit();
 
         res.status(201).json({
             message: 'Se han registrado correctamente los consumos en mysql',
             reciboId
         });
     } catch (error) {
-        console.error("Error al registrar el consumo:", error);
-        res.status(500).json({ error: "Error interno del servidor" });
+        try {
+            await connection.rollback();
+        } catch (rollbackError) {
+            console.error('Error al revertir la transacción del consumo: ', rollbackError);
+        }
+        return responderError(res, error, 'Error al registrar el consumo.');
+    } finally {
+        connection.release();
     }
 };
 
