@@ -166,8 +166,10 @@
     </div>
 
     <div class="modal-footer">
-      <button class="secondary-button" (click)="closeEditModal()">Cancelar</button>
-      <button class="primary-button" (click)="saveEditConsumo()">Guardar cambios</button>
+      <button class="secondary-button" (click)="closeEditModal()" [disabled]="saving">Cancelar</button>
+      <button class="primary-button" (click)="saveEditConsumo()" [disabled]="saving">
+        {{ saving ? 'Guardando...' : 'Guardar cambios' }}
+      </button>
     </div>
   </div>
 </div>

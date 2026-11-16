@@ -83,15 +83,17 @@
         <label>Responsable</label>
         <select class="custom-select" [(ngModel)]="addIdResponsable">
           <option value="">Seleccionar responsable</option>
-          <option *ngFor="let i of inquilinos" [value]="i.idResponsable">
+          <option *ngFor="let i of inquilinosActivos" [value]="i.idResponsable">
             {{ i.nombres }}
           </option>
         </select>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="secondary-button" (click)="showAdd = false">Cancelar</button>
-      <button class="primary-button" (click)="handleAddSave()">Guardar</button>
+      <button class="secondary-button" (click)="showAdd = false" [disabled]="saving">Cancelar</button>
+      <button class="primary-button" (click)="handleAddSave()" [disabled]="saving">
+        {{ saving ? 'Guardando...' : 'Guardar' }}
+      </button>
     </div>
   </div>
 </div>
@@ -101,7 +103,7 @@
   <div class="custom-modal">
     <div class="modal-header">
       <h2>Detalles del apartamento</h2>
-      <button class="close-btn" (click)="showDetalles = false">&times;</button>
+      <button class="close-btn" (click)="showDetalles = false" [disabled]="saving">&times;</button>
     </div>
     <div class="modal-body">
       <div class="input-card">
@@ -113,15 +115,17 @@
         <label>Asignar responsable</label>
         <select class="custom-select" [(ngModel)]="editIdResponsable">
           <option value="">Ninguno</option>
-          <option *ngFor="let i of inquilinos" [value]="i.idResponsable">
-            {{ i.nombres }}
+          <option *ngFor="let i of inquilinosParaEditar" [value]="i.idResponsable">
+            {{ i.nombres }} {{ i.Estado_idEstado !== 1 ? '(Inactivo)' : '' }}
           </option>
         </select>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="secondary-button" (click)="showDetalles = false">Cancelar</button>
-      <button class="primary-button" (click)="handleUpdateSave()">Guardar cambios</button>
+      <button class="secondary-button" (click)="showDetalles = false" [disabled]="saving">Cancelar</button>
+      <button class="primary-button" (click)="handleUpdateSave()" [disabled]="saving">
+        {{ saving ? 'Guardando...' : 'Guardar cambios' }}
+      </button>
     </div>
   </div>
 </div>

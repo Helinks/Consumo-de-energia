@@ -1,5 +1,8 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { ApiService, Responsable } from '../../services/api.service';
+import { ViewWillEnter } from '@ionic/angular';
+import { forkJoin } from 'rxjs';
+import { ApiService, Apartamento, Responsable } from '../../services/api.service';
+import { UiFeedbackService } from '../../services/ui-feedback.service';
 
 @Component({
   selector: 'app-gestionar-inquilinos',
@@ -7,12 +10,14 @@ import { ApiService, Responsable } from '../../services/api.service';
   styleUrls: ['./gestionar-inquilinos.page.scss'],
   standalone: false
 })
-export class GestionarInquilinosPage implements OnInit {
+export class GestionarInquilinosPage implements OnInit, ViewWillEnter {
   inquilinos: Responsable[] = [];
+  apartamentos: Apartamento[] = [];
 
   showAdd: boolean = false;
   showEdit: boolean = false;
   showDetails: boolean = false;
+  saving: boolean = false;
 
   selectedInquilino: Responsable | null = null;
 
@@ -28,20 +33,36 @@ export class GestionarInquilinosPage implements OnInit {
     return this.inquilinos.filter((i) => i.Estado_idEstado !== 1);
   }
 
-  constructor(private apiService: ApiService, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private apiService: ApiService,
+    private cdr: ChangeDetectorRef,
+    private uiFeedback: UiFeedbackService
+  ) {}
 
-  ngOnInit() {
+  ngOnInit() {}
+
+  ionViewWillEnter() {
+    this.showAdd = false;
+    this.showEdit = false;
+    this.showDetails = false;
+    this.cdr.markForCheck();
     this.fetchInquilinos();
   }
 
   fetchInquilinos() {
-    this.apiService.getResponsables().subscribe({
-      next: (res) => {
-        if (Array.isArray(res.message)) {
-          this.inquilinos = res.message;
+    forkJoin({
+      resInq: this.apiService.getResponsables(),
+      resApt: this.apiService.getApartamentos()
+    }).subscribe({
+      next: ({ resInq, resApt }) => {
+        if (Array.isArray(resInq.message)) {
+          // Esta pantalla administra solo inquilinos. El dueño (rol 1)
+          // no debe poder editarse ni eliminarse desde aquí.
+          this.inquilinos = resInq.message.filter((i) => i.idRol !== 1);
         } else {
           this.inquilinos = [];
         }
+        this.apartamentos = Array.isArray(resApt.message) ? resApt.message : [];
         this.cdr.markForCheck();
       },
       error: (err) => {
@@ -56,22 +77,30 @@ export class GestionarInquilinosPage implements OnInit {
     this.showAdd = true;
   }
 
-  handleAddSave() {
+  async handleAddSave() {
+    if (this.saving) return;
+
     if (!this.addNombres.trim()) {
-      alert('Ingresa un nombre.');
+      await this.uiFeedback.showAlert('Dato requerido', 'Ingresa un nombre para el inquilino.');
       return;
     }
 
-    this.apiService.crearResponsable({ nombres: this.addNombres }).subscribe({
-      next: () => {
+    this.saving = true;
+    this.cdr.markForCheck();
+
+    this.apiService.crearResponsable({ nombres: this.addNombres.trim() }).subscribe({
+      next: async () => {
+        this.saving = false;
         this.showAdd = false;
         this.fetchInquilinos();
         this.cdr.markForCheck();
+        await this.uiFeedback.showToast('Inquilino agregado exitosamente', 'success');
       },
-      error: (err) => {
-        console.error(err);
+      error: async (err) => {
+        this.saving = false;
         this.cdr.markForCheck();
-        alert(err.error?.error || 'Error al guardar');
+        console.error(err);
+        await this.uiFeedback.showAlert('Error', err.error?.error || 'Error al guardar el inquilino');
       }
     });
   }
@@ -83,29 +112,51 @@ export class GestionarInquilinosPage implements OnInit {
     this.showEdit = true;
   }
 
-  handleEditSave() {
+  async handleEditSave() {
+    if (this.saving) return;
+
     if (!this.editNombres.trim() || !this.selectedInquilino?.idResponsable) {
-      alert('Ingresa un nombre.');
+      await this.uiFeedback.showAlert('Dato requerido', 'Ingresa un nombre.');
       return;
     }
+
+    const nuevoEstado = Number(this.editIdEstado);
+    if (nuevoEstado !== 1) {
+      const aptAsignado = this.apartamentos.find(
+        (a) => a.Responsable_idResponsable === this.selectedInquilino?.idResponsable
+      );
+      if (aptAsignado) {
+        await this.uiFeedback.showAlert(
+          'Inquilino asignado',
+          `No puedes desactivar a este inquilino porque está asignado a "${aptAsignado.descripcion}". Primero desvincula el apartamento.`
+        );
+        return;
+      }
+    }
+
+    this.saving = true;
+    this.cdr.markForCheck();
 
     this.apiService
       .editarResponsable({
         id: this.selectedInquilino.idResponsable,
-        nombres: this.editNombres,
-        idEstado: Number(this.editIdEstado)
+        nombres: this.editNombres.trim(),
+        idEstado: nuevoEstado
       })
       .subscribe({
-        next: () => {
+        next: async () => {
+          this.saving = false;
           this.showEdit = false;
           this.selectedInquilino = null;
           this.fetchInquilinos();
           this.cdr.markForCheck();
+          await this.uiFeedback.showToast('Inquilino actualizado exitosamente', 'success');
         },
-        error: (err) => {
-          console.error(err);
+        error: async (err) => {
+          this.saving = false;
           this.cdr.markForCheck();
-          alert(err.error?.error || 'Error al actualizar');
+          console.error(err);
+          await this.uiFeedback.showAlert('Error', err.error?.error || 'Error al actualizar');
         }
       });
   }
@@ -115,21 +166,45 @@ export class GestionarInquilinosPage implements OnInit {
     this.showDetails = true;
   }
 
-  handleDelete(id: number) {
-    if (!confirm('¿Eliminar este inquilino?')) return;
+  async handleDelete(id: number) {
+    if (this.saving) return;
+
+    const aptAsignado = this.apartamentos.find((a) => a.Responsable_idResponsable === id);
+    if (aptAsignado) {
+      await this.uiFeedback.showAlert(
+        'Inquilino asignado',
+        `No puedes eliminar a este inquilino porque está asignado a "${aptAsignado.descripcion}". Primero desvincula el apartamento.`
+      );
+      return;
+    }
+
+    const confirmed = await this.uiFeedback.showConfirm(
+      '¿Eliminar inquilino?',
+      '¿Está seguro que desea eliminar a este inquilino? Esta acción no se puede deshacer.',
+      'Eliminar',
+      'Cancelar'
+    );
+    if (!confirmed) return;
+
+    this.saving = true;
+    this.cdr.markForCheck();
 
     this.apiService.borrarResponsable(id).subscribe({
-      next: () => {
+      next: async () => {
+        this.saving = false;
         this.showDetails = false;
         this.selectedInquilino = null;
         this.fetchInquilinos();
         this.cdr.markForCheck();
+        await this.uiFeedback.showToast('Inquilino eliminado', 'success');
       },
-      error: (err) => {
-        console.error(err);
+      error: async (err) => {
+        this.saving = false;
         this.cdr.markForCheck();
-        alert(err.error?.error || 'Error al eliminar');
+        console.error(err);
+        await this.uiFeedback.showAlert('Error', err.error?.error || 'Error al eliminar');
       }
     });
   }
 }
+

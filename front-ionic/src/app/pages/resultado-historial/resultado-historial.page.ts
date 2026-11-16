@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { ViewWillEnter } from '@ionic/angular';
 import { ApiService, Consumo, Recibo } from '../../services/api.service';
 
 @Component({
@@ -8,7 +9,7 @@ import { ApiService, Consumo, Recibo } from '../../services/api.service';
   styleUrls: ['./resultado-historial.page.scss'],
   standalone: false
 })
-export class ResultadoHistorialPage implements OnInit {
+export class ResultadoHistorialPage implements OnInit, ViewWillEnter {
   reciboId?: number;
   recibo?: Recibo;
   consumos: Consumo[] = [];
@@ -49,20 +50,31 @@ export class ResultadoHistorialPage implements OnInit {
 
   ngOnInit() {
     this.route.queryParams.subscribe((params) => {
-      this.reciboId = params['reciboId'] ? Number(params['reciboId']) : undefined;
-      if (!this.reciboId) {
-        this.error = 'No se ha proporcionado un ID de recibo.';
-        this.loading = false;
-        this.cdr.markForCheck();
-        return;
+      const id = params['reciboId'] ? Number(params['reciboId']) : undefined;
+      if (id && id !== this.reciboId) {
+        this.reciboId = id;
+        this.fetchData();
       }
-      this.fetchData();
     });
+  }
+
+  ionViewWillEnter() {
+    const queryId = this.route.snapshot.queryParamMap.get('reciboId');
+    if (queryId) {
+      this.reciboId = Number(queryId);
+      this.fetchData();
+    } else if (!this.reciboId) {
+      this.error = 'No se ha proporcionado un ID de recibo.';
+      this.loading = false;
+      this.cdr.markForCheck();
+    }
   }
 
   fetchData() {
     if (!this.reciboId) return;
     this.loading = true;
+    this.error = '';
+    this.cdr.markForCheck();
 
     this.apiService.getReciboPorId(this.reciboId).subscribe({
       next: (resRecibo) => {

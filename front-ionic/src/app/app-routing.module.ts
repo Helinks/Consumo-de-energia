@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
+import { PendingChangesGuard } from './guards/pending-changes.guard';
 
 const routes: Routes = [
   {
@@ -17,7 +18,8 @@ const routes: Routes = [
   },
   {
     path: 'resultados',
-    loadChildren: () => import('./pages/resultados/resultados.module').then(m => m.ResultadosPageModule)
+    loadChildren: () => import('./pages/resultados/resultados.module').then(m => m.ResultadosPageModule),
+    canDeactivate: [PendingChangesGuard]
   },
   {
     path: 'inquilinos',
