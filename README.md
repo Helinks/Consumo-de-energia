@@ -47,6 +47,6 @@ KW consumidos – Suma de KW de cada apartamento = consumo de apartamento sin co
 
 3.	Tecnologías utilizadas:
 •	Windows 11
-•	React
+•	Angular con Ionic
 •	MySQL 
 •	Node JS
